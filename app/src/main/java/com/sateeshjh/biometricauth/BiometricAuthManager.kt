@@ -17,14 +17,15 @@ class BiometricAuthManager(
     private val resultChannel = Channel<BiometricResult>()
     val promptResults = resultChannel.receiveAsFlow()
 
+    val authenticators = if (Build.VERSION.SDK_INT >= 30) {
+        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
+    } else BIOMETRIC_STRONG
+
     fun showBiometricPrompt(
         title: String,
         description: String
     ) {
         val manager = BiometricManager.from(activity)
-        val authenticators = if (Build.VERSION.SDK_INT >= 30) {
-            BIOMETRIC_STRONG or DEVICE_CREDENTIAL
-        } else BIOMETRIC_STRONG
 
         val promptInfo = PromptInfo.Builder()
             .setTitle(title)
