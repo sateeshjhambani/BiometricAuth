@@ -15,9 +15,7 @@ For consistency's sake, the biometric prompt has a system-defined UI, but some c
 We receive various errors and add these events to a results channel, which our activity collects and shows an error message accordingly. 
 
 ```kotlin
-val authenticators = if (Build.VERSION.SDK_INT >= 30) {
-        BIOMETRIC_STRONG or DEVICE_CREDENTIAL
-    } else BIOMETRIC_STRONG
+val authenticators = BIOMETRIC_STRONG or DEVICE_CREDENTIAL
 
 val promptInfo = PromptInfo.Builder()
     .setTitle(title)
@@ -73,7 +71,19 @@ val prompt = BiometricPrompt(
 prompt.authenticate(promptInfo.build())
 ```
 
+If at the activity level, we collect an error that tells us that no biometrics and/or credential is set on this device, we can navigate the user to the settings page to add an auth method.
 
+```kotlin
+if (biometricResult is BiometricResult.AuthenticationNotSet) {
+    val enrollIntent = Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+        putExtra(
+            Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+            authManager.authenticators
+        )
+    }
+    enrollLauncher.launch(enrollIntent)
+}
+```
 
 ## References
 
